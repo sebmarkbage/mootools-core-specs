@@ -57,9 +57,28 @@ var Lion = new Class({
 	initialize: function(name){
 		this.parent(name, 'rarr');
 	},
+	
+	cast: function(instance){
+		if (instanceOf(instance, Lion)) return instance;
+		return instance.toLion && instance.toLion();
+	},
 
 	eat: function(){
 		return 'lion:eat:' + this.name;
+	}
+
+});
+
+var Tiger = new Class({
+
+	Extends: Cat,
+	
+	initialize: function(name){
+		this.parent(name, 'rawr');
+	},
+	
+	toLion: function(){
+		return new Lion(this.name);
 	}
 
 });
@@ -234,6 +253,24 @@ describe('Class creation', {
 		value_of(rover.say()).should_be('NEW:animal:say:rover');
 	}
 	*/
+
+});
+
+describe('Class::cast', {
+
+	'should be castable to parent class using same instance by default': function(){
+		var cat = new Cat('fluffy');
+		var animal = Animal(cat);
+		value_of(cat).should_be(animal);
+	},
+
+	'should be castable by custom cast method': function(){
+		var tiger = new Tiger('tony');
+		var lion = Lion(tiger);
+		value_of(tiger).should_not_be(lion);
+		value_of(instanceOf(lion, Lion)).should_be_true();
+		value_of(lion.name).should_be('tony');
+	}
 
 });
 
